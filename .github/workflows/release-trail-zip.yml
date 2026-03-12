@@ -1,0 +1,40 @@
+name: Release trail.zip
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build trail.zip
+        run: |
+          cd trail
+          zip -r ../trail.zip .
+          cd ..
+
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Delete existing latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --yes 2>/dev/null || true
+          git push origin :refs/tags/latest 2>/dev/null || true
+
+      - name: Create release and upload trail.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create latest trail.zip \
+            --title "Trail Scaffold — latest" \
+            --notes "Latest scaffold build from commit ${{ steps.sha.outputs.short }}. Download trail.zip and unzip into your project." \
+            --latest
