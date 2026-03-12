@@ -1,5 +1,3 @@
-# 06 - Manual: Structure and Artifacts
-
 # Manual: Structure, Files, and Artifacts
 
 This manual documents the **multi-intent** model as the current operating structure.
@@ -44,16 +42,14 @@ Purpose: define the Trail-wide reality, identity, and global operating constrain
 - May be blank in a brand-new project with nothing yet to document.
 
 > Many AI development tools generate an equivalent file automatically (Claude Code, Codex, and others produce project context files for the same purpose). If your tool generates one, it can serve as or directly inform your `meta/baseline.md`.
-> 
 
-**Generating [baseline.md](http://baseline.md)**
+**Generating baseline.md**
 
 Trail ships a prompt for this: `trail/meta/prompts/generate-baseline.md`.
 
 To generate your baseline, point any AI development tool at your project and run:
 
 > This is an existing project. Execute the instructions in `trail/meta/prompts/generate-baseline.md`.
-> 
 
 The prompt will analyze your project and produce `trail/meta/baseline.md`. It is read-only — it will not modify any existing files.
 
@@ -75,10 +71,7 @@ Trail ships one prompt: `generate-baseline.md`. Copy it into `trail/meta/prompts
 - Policy, scope rules, and behavioral constraints only (not task-specific).
 
 > Effective operating instructions are the sum of:
-> 
-
 > `trail/meta/global-operating-instructions.md` + intent-level `operating-instructions-override.md` + run-specific policy
-> 
 
 ---
 
@@ -95,7 +88,7 @@ Either works as long as ordering is unambiguous and intent folders are never mod
 
 ### Intent Package Structure
 
-Each intent folder contains three files that together form the "intent package":
+Each intent folder contains three files that together form the "intent package."
 
 ### `trail/intents/<intent>/files/` (recommended)
 
@@ -174,24 +167,30 @@ Runs are:
 - allowed to fail/pause/resume
 - execution-only (they answer *how*, never *what*)
 
-Runs consume:
+The **Manager** reads these files to produce the run bundle:
 
-- `trail/meta/trail.md` (Manager reads; not passed directly to Developer)
+- `trail/meta/trail.md`
 - `trail/meta/baseline.md`
 - `trail/meta/global-operating-instructions.md`
 - `trail/intents/<intent>/intent.md`
 - `trail/intents/<intent>/manager-instructions.md`
 - `trail/intents/<intent>/operating-instructions-override.md`
-- run artifacts created by the Manager
+
+The **Developer** reads only these:
+
+- Run artifacts in the current run folder (`operating-instructions.md`, `tasks.md`, `dev-prompt.md`)
+- Input files explicitly listed in those artifacts (`trail/intents/<intent>/files/` and/or `trail/meta/files/`)
+
+The Manager is responsible for distilling all context the Developer needs into the run artifacts. The Developer never reads intent or meta files directly.
 
 ### Files inside a run folder (Manager creates these)
 
 ### `operating-instructions.md` (composite)
 
 - **Composite** of:
-    1. Global operating instructions (from `trail/meta/global-operating-instructions.md`)
-    2. Intent-level overrides (from `operating-instructions-override.md`, if present)
-    3. Run-specific policy/rules (defined by Manager for this run)
+  1. Global operating instructions (from `trail/meta/global-operating-instructions.md`)
+  2. Intent-level overrides (from `operating-instructions-override.md`, if present)
+  3. Run-specific policy/rules (defined by Manager for this run)
 - Contains policy, scope rules, and behavioral constraints only.
 - Executor reads ONLY this file for operating rules (fully composed, no need to read meta or intent level).
 
@@ -204,7 +203,8 @@ Runs consume:
 ### `dev-prompt.md`
 
 - The Developer's entry point and execution contract.
-- Must define: files to read, outputs expected, boundaries, ambiguity handling, validation steps.
+- Must define: files to read (run files and explicitly declared input files only), outputs expected, boundaries, ambiguity handling, validation steps.
+- Must **not** list `intent.md`, `trail.md`, `global-operating-instructions.md`, or any other intent-level or meta-level file. All context from those files must already be present in `tasks.md` or `operating-instructions.md`.
 
 ### `start-dev-prompt.md`
 

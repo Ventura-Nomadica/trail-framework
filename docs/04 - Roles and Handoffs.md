@@ -1,5 +1,3 @@
-# 04 - Roles and Handoffs
-
 # Roles & Handoffs
 
 Trail uses **four roles** (with some environments treating Reviewer as a "3.5th" role because it can be the Architect or Product Owner).
@@ -12,9 +10,9 @@ Produces:
 
 - `trail/meta/trail.md` (product identity, permanent constraints, product principles — created once, updated rarely)
 - Intent package:
-    - `intent.md` (the authoritative scope document — purpose, constraints, dependencies, scope, assumptions, specifics, deliverables, acceptance criteria, notes)
-    - `manager-instructions.md` (how Manager operates for this intent)
-    - `operating-instructions-override.md` (intent-level policy overrides, if needed)
+  - `intent.md` (the authoritative scope document — purpose, constraints, dependencies, scope, assumptions, specifics, deliverables, acceptance criteria, notes)
+  - `manager-instructions.md` (how Manager operates for this intent)
+  - `operating-instructions-override.md` (intent-level policy overrides, if needed)
 - Updates to `trail/meta/` when reality changes (baseline, global instructions, trail identity)
 - Files to be used for the work (images, icons, documents, datasets, etc.)
 
@@ -42,15 +40,15 @@ Produces a run bundle inside a timestamped run folder (`trail/runs/<intent-id>/r
 
 Manager rules:
 
-- Must read `trail/meta/trail.md` before producing run artifacts for every run.
+- Must read `trail/meta/trail.md` and `intent.md` before producing run artifacts. The Developer reads neither of these files directly.
+- Must distill all context the Developer needs — product identity, scope, constraints, technology decisions, file paths — into the run artifacts. Nothing relevant to execution may remain only in intent or meta files.
 - Must restate intent, not reinterpret it.
 - Must surface assumptions explicitly.
-- Must surface relevant product context from `trail.md` into run artifacts (primarily `dev-prompt.md` and `tasks.md`) so the Developer has what it needs without reading `trail.md` directly.
 - Must define validation strategy (how we know it's done).
 - Must not add new scope.
 - Must create the run bundle per `manager-instructions.md`.
 - Must compose `operating-instructions.md` as a composite of: global operating instructions + intent-level override + run-specific policy.
-- Must ensure all required inputs are explicitly listed or discoverable via the files lookup order (`trail/intents/<intent>/files/` → `trail/meta/files/`).
+- Must ensure all required input files are explicitly listed in `tasks.md` or `dev-prompt.md` by exact path.
 - Must enforce the missing input policy: if a non-critical input is absent, create a reasonable placeholder and record it in `results.md`. If a critical input is absent, do not invent it — stop and report the missing dependency.
 
 ## Role 3: Developer (Human or AI)
@@ -59,17 +57,21 @@ Manager rules:
 
 Developer rules:
 
-- Must work *only* from the files (meta + intent + run artifacts).
+- Must work **only** from run files: `operating-instructions.md`, `tasks.md`, `dev-prompt.md`, and any input files explicitly listed in those artifacts.
+- Must **not** read `intent.md`, `trail.md`, `global-operating-instructions.md`, or any other intent-level or meta-level file. The Manager is responsible for surfacing all necessary context into the run artifacts.
 - Must not rely on chat memory or "earlier context" that isn't written down.
-- Should not invent tasks or expand scope.
-- Must record deviations and assumptions.
+- Must not invent tasks or expand scope.
+- Must record deviations and assumptions in `results.md`.
 
-Note: The Developer does **not** read `trail.md` directly. The Manager is responsible for surfacing any relevant product context into the run artifacts.
+The Developer's permitted file access:
+
+- **Run files** (always): the contents of the current run folder
+- **Input files** (when explicitly listed in run artifacts): `trail/intents/<intent>/files/` and `trail/meta/files/` subfolders only
 
 Output:
 
 - code / files / diffs (the deliverable)
-- plus a results summary artifact if your project uses one (see "contradictions" page)
+- `results.md` populated with tasks completed, files changed, deviations, assumptions, open questions
 
 ## Role 4: Reviewer (Human)
 
@@ -100,8 +102,8 @@ Trail supports both; the invariant is that **someone must perform the review ste
 ## Handoff sequence
 
 1. Architect/PO produces an intent package (and maintains `trail/meta/trail.md`).
-2. Manager reads `trail.md` + intent package, then produces run docs inside the run folder.
-3. Developer executes from files and produces output + results.
+2. Manager reads `trail.md` + intent package, then produces the run bundle — surfacing all execution-relevant context into the run artifacts.
+3. Developer executes **from run files only** and produces output + results.
 4. Reviewer verifies and returns decision back to Architect/PO.
 
 ## Hard constraint for execution

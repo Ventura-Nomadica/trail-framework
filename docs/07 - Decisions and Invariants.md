@@ -1,5 +1,3 @@
-# 07 - Decisions and Invariants
-
 # Decisions & Invariants
 
 This page lists the current **non-negotiables** and major decisions that define Trail.
@@ -7,29 +5,42 @@ This page lists the current **non-negotiables** and major decisions that define 
 ## Invariants (do not violate)
 
 1. **Artifacts are authoritative.**
-    - Conversations are not the source of truth.
+   - Conversations are not the source of truth.
+
 2. **Intent is human-owned and defines scope.**
-    - Executors (AI or human) do not decide "what" is being built.
+   - Executors (AI or human) do not decide "what" is being built.
+
 3. **Multi-intent is the current model.**
-    - Products evolve through multiple immutable intents.
+   - Products evolve through multiple immutable intents.
+
 4. **Intents are immutable once execution begins.**
-    - New work → new intent.
-    - Old intents are preserved.
-    - The only exception is if the initial intent cannot be used by the Manager (INTENT_UNUSABLE).
+   - New work → new intent.
+   - Old intents are preserved.
+   - The only exception is if the initial intent cannot be used by the Manager (INTENT_UNUSABLE).
+
 5. **Runs are execution-only.**
-    - Runs answer "how," never "what."
-    - Manager decides number and sequence of runs.
+   - Runs answer "how," never "what."
+   - Manager decides number and sequence of runs.
+
 6. **Role separation is enforced.**
-    - Architect/Product Owner defines scope. Human only.
-    - Manager produces run artifacts. Human or AI.
-    - Developer executes run artifacts. Human or AI.
-    - Reviewer verifies outputs. Human only.
-    - Architect/Product Owner and Reviewer may be the same person. No other role merging is permitted.
+   - Architect/Product Owner defines scope. Human only.
+   - Manager produces run artifacts. Human or AI.
+   - Developer executes run artifacts. Human or AI.
+   - Reviewer verifies outputs. Human only.
+   - Architect/Product Owner and Reviewer may be the same person. No other role merging is permitted.
+
 7. **Ambiguity must be documented, not inferred.**
-    - If something is unclear, choose the simplest interpretation consistent with stated intent, document it in `results.md`, and stop if unable to proceed.
+   - If something is unclear, choose the simplest interpretation consistent with stated intent, document it in `results.md`, and stop if unable to proceed.
+
 8. **Executors must not rely on context outside declared inputs.**
-    - Separate chats are optional; file-bounded context is mandatory.
-9. **Intent packages include three files:**
+   - Separate chats are optional; file-bounded context is mandatory.
+
+9. **The Developer reads run files only.**
+   - The Developer's permitted inputs are: run artifacts (`operating-instructions.md`, `tasks.md`, `dev-prompt.md`) and any input files explicitly listed in those artifacts (`trail/intents/<intent>/files/` and `trail/meta/files/`).
+   - The Developer does **not** read `intent.md`, `trail.md`, `global-operating-instructions.md`, or any other intent-level or meta-level file.
+   - The Manager is responsible for distilling all context the Developer needs into the run artifacts. Nothing relevant to execution may remain only in intent or meta files.
+
+10. **Intent packages include three files:**
     - `intent.md` (authoritative scope document)
     - `manager-instructions.md` (how Manager operates)
     - `operating-instructions-override.md` (intent-level policy overrides)
@@ -59,10 +70,10 @@ Executors follow this lookup order: intent files first, meta files second. No ru
 ## Naming conventions
 
 - Intent folders:
-    - `intent-0001` style, or
-    - `intent-YYYY-MM-DD-mm-ss` style
+  - `intent-0001` style, or
+  - `intent-YYYY-MM-DD-mm-ss` style
 - Run folders:
-    - `run-YYYY-MM-DD-HH-MM-SS` (required — timestamp provides ordering, human readability, and collision avoidance)
+  - `run-YYYY-MM-DD-HH-MM-SS` (required — timestamp provides ordering, human readability, and collision avoidance)
 
 ---
 

@@ -7,7 +7,7 @@
 
      The Manager reads this file first, before reading intent.md. -->
 
-Owner: <n>
+Owner: <name>
 Last Updated: YYYY-MM-DD
 
 ---
@@ -38,10 +38,14 @@ If any required file is missing, stop and report what is missing.
 
 ### Product Context Rule
 
-The Manager must surface relevant product context from `trail.md` into run
-artifacts (primarily `dev-prompt.md` and `tasks.md`) so the Developer has what
-it needs without reading `trail.md` directly. The Developer's contract remains:
-work only from run files.
+The Manager reads `trail.md`, `intent.md`, and all other intent/meta files.
+**The Developer reads none of them.**
+
+The Manager must distill all context the Developer needs — from `trail.md`,
+`intent.md`, `baseline.md`, and any overrides — into the run artifacts
+(`tasks.md`, `dev-prompt.md`, `operating-instructions.md`). Nothing relevant
+to execution may remain only in intent or meta files. The Developer's contract
+is: work only from run files.
 
 ---
 
@@ -54,11 +58,13 @@ Proceed with run creation.
 
 **INTENT_UNUSABLE** — the intent cannot be executed without guessing. This is only
 valid when one or more of the following are true:
+
 - Missing required information (deliverable, constraints, acceptance criteria)
 - Internal contradictions that block planning
 - Ambiguity so severe that multiple incompatible implementations are equally plausible
 
 If INTENT_UNUSABLE:
+
 - Create/update `results.md` with the reason, what is missing, and what cannot
   be safely assumed.
 - Do NOT create `dev-prompt.md` or `start-dev-prompt.md`.
@@ -75,6 +81,7 @@ If INTENT_UNUSABLE:
 ### Run Location
 
 All runs are created under:
+
 ```
 trail/runs/<intent-id>/run-YYYY-MM-DD-HH-MM-SS/
 ```
@@ -92,6 +99,7 @@ trail/runs/<intent-id>/run-YYYY-MM-DD-HH-MM-SS/
 ## Required Run Artifacts
 
 All run-scoped Markdown files MUST begin with the standard run header:
+
 ```
 # Run: <run-folder-name>
 # Purpose: <short human-readable purpose>
@@ -106,6 +114,7 @@ The Manager must create these files inside each run folder:
 5. `results.md`
 
 Optional:
+
 - `workplan.md` (recommended for complex runs with 10+ tasks)
 
 ---
@@ -113,11 +122,13 @@ Optional:
 ## Artifact Specifications
 
 ### 1. `operating-instructions.md`
+
 **Purpose:** The complete rule set the Developer must follow for this run.
 The Developer reads only this file for operating rules — it must be fully
 self-contained.
 
 **Must:**
+
 - Include the standard run header.
 - Compose inline: global operating rules + intent-level overrides (if any) +
   run-specific constraints.
@@ -127,6 +138,7 @@ self-contained.
 override wins. The conflicting global rule must not appear in the final composite.
 
 **Must Not:**
+
 - Restate product intent.
 - List tasks.
 - Include implementation details.
@@ -136,16 +148,19 @@ override wins. The conflicting global rule must not appear in the final composit
 ---
 
 ### 2. `tasks.md`
+
 **Purpose:** The exact work to be performed by the Developer.
 
 **Must:**
+
 - Include the standard run header.
 - Contain ordered, atomic, verifiable tasks.
 - Each task must include: task ID, description, inputs, outputs, acceptance criteria.
 - Contain everything needed to execute without human clarification.
 
 **Must Not:**
-- Contain behavioral rules (those go in operating-instructions.md).
+
+- Contain behavioral rules (those go in `operating-instructions.md`).
 - Contain speculative or future work.
 
 **Read by:** Developer
@@ -153,31 +168,39 @@ override wins. The conflicting global rule must not appear in the final composit
 ---
 
 ### 3. `dev-prompt.md`
+
 **Purpose:** The execution contract for the Developer. Defines what to read,
 what to do, and what to produce.
 
 **Must:**
+
 - Include the standard run header.
 - Explicitly list every file the Developer must read.
 - Bind the Developer to the run scope as defined.
 - Define required outputs.
 - Define how ambiguity must be handled: choose the simplest interpretation
-  consistent with intent, document the decision in results.md, stop and report
+  consistent with intent, document the decision in `results.md`, stop and report
   if blocked.
 
 **Must Not:**
+
 - Introduce new scope.
 - Re-describe product intent.
+- List `intent.md`, `trail.md`, `global-operating-instructions.md`, or any
+  other intent-level or meta-level file as Developer inputs. The Manager has
+  already distilled what the Developer needs into the run artifacts.
 
 **Read by:** Developer
 
 ---
 
 ### 4. `start-dev-prompt.md`
+
 **Purpose:** The human-run entry point for invoking the Developer. This is the
 exact prompt the human copies into the Developer agent to begin execution.
 
 **Must:**
+
 - Reference exactly one run's `dev-prompt.md`.
 - Contain no policy, scope, or behavioral rules.
 - Be the last artifact created in the run bundle.
@@ -191,10 +214,12 @@ before invoking the Developer.
 ---
 
 ### 5. `results.md`
+
 **Purpose:** The Developer's output record. Pre-created by the Manager as an
 empty scaffold for the Developer to populate during execution.
 
 **Must:**
+
 - Include the standard run header.
 - Contain empty sections: Tasks Completed, Files Changed/Added, Deviations
   from Plan, Assumptions Made, Open Questions/Blockers.
@@ -204,6 +229,7 @@ empty scaffold for the Developer to populate during execution.
 ---
 
 ### 6. `workplan.md` (optional)
+
 **Purpose:** Manager's planning artifact for complex runs. Not read by the Developer.
 
 **Use when:** 10+ tasks, multi-day execution, or significant coordination required.
@@ -221,11 +247,15 @@ validation strategy.
 - Derive scope strictly from `intent.md`. Do not invent features, platforms, or services.
 - No artifact outside the run contract may change scope or override constraints.
 - The Developer must not access files outside:
-  - The run folder
-  - `trail/intents/<this-intent>/files/` and subfolders
-  - `trail/meta/files/` and subfolders
+  - The run folder (`operating-instructions.md`, `tasks.md`, `dev-prompt.md`, `results.md`)
+  - `trail/intents/<this-intent>/files/` and subfolders (input assets only, when explicitly listed in run artifacts)
+  - `trail/meta/files/` and subfolders (input assets only, when explicitly listed in run artifacts)
+- The Developer must **never** read: `intent.md`, `trail.md`, `global-operating-instructions.md`,
+  `operating-instructions-override.md`, `manager-instructions.md`, or any other policy/scope file
+  in `trail/intents/` or `trail/meta/`. These are Manager inputs, not Developer inputs.
 
 ### Implementation Freedom
+
 - The Developer may create additional files or helper artifacts as needed.
 - Additional artifacts are non-authoritative unless explicitly referenced by the run contract.
 - The Developer must not modify run contract files unless explicitly tasked.
