@@ -74,6 +74,20 @@ Default lookup order for inputs inside the Trail folder structure:
 1. `trail/intents/<this-intent>/files/`
 2. `trail/meta/files/`
 
+### Developer file access
+
+If you are acting as **Developer**, your permitted inputs are:
+
+- Run artifacts in the current run folder (`operating-instructions.md`, `tasks.md`, `dev-prompt.md`)
+- Input files explicitly listed in those artifacts (`trail/intents/<intent>/files/` and `trail/meta/files/`)
+
+You must **not** read `intent.md`, `trail.md`, `global-operating-instructions.md`,
+`operating-instructions-override.md`, `manager-instructions.md`, or any other
+policy or scope file in `trail/intents/` or `trail/meta/`. These are Manager
+inputs. The Manager is responsible for distilling all context you need into the
+run artifacts. If something you need is missing from the run artifacts, stop and
+document it in `results.md`.
+
 ---
 
 ## Assumptions & Ambiguity
